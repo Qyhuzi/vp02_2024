@@ -21,8 +21,8 @@ namespace D22_DClock
         private int minHand;  // 분침의 길이
         private int secHand;  // 초짐의 길이
 
-        private const int clinetSize = 300;  // client 크기
-        private const int clockSize = 200;   // clock 크기
+        private const int clinetSize = 800;  // client 크기
+        private const int clockSize = 700;   // clock 크기
 
         private Font fDate;
         private Font fTime;
@@ -45,6 +45,8 @@ namespace D22_DClock
             panel1.Location = new Point(clinetSize / 2 - clockSize / 2,
                 clinetSize / 2 - clockSize / 2 + menuStrip1.Height);
 
+            panelCenter.X = panel1.Width / 2;
+            panelCenter.Y = panel1.Height / 2;
             g = panel1.CreateGraphics();  // panel1에서 그려주는 그래픽 객체
 
             aClockSetting();
@@ -97,15 +99,63 @@ namespace D22_DClock
 
         private void DrawHands(double radHr, double radMin, double radSec)
         {
-            
+            DrawLine(0, 0,
+                (int)(hourHand * Math.Sin(radHr)),
+                (int)(hourHand * Math.Cos(radHr)),
+                Brushes.Black, 8);
+            DrawLine(0, 0,
+                (int)(minHand * Math.Sin(radMin)),
+                (int)(minHand * Math.Cos(radMin)),
+                Brushes.DarkGray, 6);
+            DrawLine(0, 0,
+                (int)(secHand * Math.Sin(radSec)),
+                (int)(secHand * Math.Cos(radSec)),
+                Brushes.Red, 4);
+
+            // 시계배꼽
+            int coreSize = 16;
+            Rectangle r = new Rectangle(panelCenter.X - coreSize / 2,
+                panelCenter.Y - coreSize / 2, coreSize, coreSize);
+            g.FillEllipse(Brushes.Gold, r);
+            g.DrawEllipse(new Pen(Brushes.Green), r);
+        }
+
+        private void DrawLine(int x1, int y1, int x2, int y2, Brush brush, int thick)
+        {
+            Pen p = new Pen(brush, thick);
+            p.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+            g.DrawLine(p, panelCenter.X + x1, panelCenter.Y + y1,
+                panelCenter.X + x2, panelCenter.Y - y2);
         }
 
         private void DrawClockFace()
         {
             const int penWidth = 30;
 
-            Pen p = new Pen(Brushes.LightSteelBlue, penWidth);
+            Pen p = new Pen(Brushes.Gray, penWidth);
             g.DrawEllipse(p, penWidth / 2 , penWidth / 2, clockSize - penWidth, clockSize - penWidth);
+
+            // 눈금
+            Pen lPen = new Pen(Brushes.Black, 5);
+            for (int i = 0; i < 360; i += 90)
+            {
+                int x1 = (int)(radius * 0.85 * Math.Sin (i * Math.PI / 180));
+                int y1 = (int)(radius * 0.85 * Math.Cos (i * Math.PI / 180));
+                int x2 = (int)(radius * 0.95 * Math.Sin (i * Math.PI / 180));
+                int y2 = (int)(radius * 0.95 * Math.Cos (i * Math.PI / 180));
+                g.DrawLine(lPen, panelCenter.X + x1, panelCenter.Y - y1, panelCenter.X + x2, panelCenter.Y - y2);
+            }
+            // 작은 눈금
+            Pen sPen = new Pen(Brushes.DarkGray, 3);
+            for (int i = 0; i < 360; i += 30)
+            {
+                if (i % 90 == 0) continue;
+                int x1 = (int)(radius * 0.85 * Math.Sin(i * Math.PI / 180));
+                int y1 = (int)(radius * 0.85 * Math.Cos(i * Math.PI / 180));
+                int x2 = (int)(radius * 0.92 * Math.Sin(i * Math.PI / 180));
+                int y2 = (int)(radius * 0.92 * Math.Cos(i * Math.PI / 180));
+                g.DrawLine(sPen, panelCenter.X + x1, panelCenter.Y - y1, panelCenter.X + x2, panelCenter.Y - y2);
+            }
         }
 
         private void aClockSetting()
@@ -115,6 +165,21 @@ namespace D22_DClock
             hourHand = (int)(radius * 0.45);
             minHand = (int)(radius * 0.55);
             secHand = (int)(radius * 0.65);
+        }
+
+        private void 아날로그ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            aClockFlag = true;
+        }
+
+        private void 디지털ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            aClockFlag = false;
+        }
+
+        private void 종료ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
